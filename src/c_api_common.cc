@@ -3,6 +3,7 @@
  * \file c_runtime_api.cc
  * \brief DGL C API common implementations
  */
+#include <dgl/graph_interface.h>
 #include "c_api_common.h"
 
 using dgl::runtime::DGLArgs;
@@ -13,18 +14,9 @@ using dgl::runtime::NDArray;
 
 namespace dgl {
 
-DLManagedTensor* CreateTmpDLManagedTensor(const DGLArgValue& arg) {
-  const DLTensor* dl_tensor = arg;
-  DLManagedTensor* ret = new DLManagedTensor();
-  ret->deleter = [] (DLManagedTensor* self) { delete self; };
-  ret->manager_ctx = nullptr;
-  ret->dl_tensor = *dl_tensor;
-  return ret;
-}
-
 PackedFunc ConvertNDArrayVectorToPackedFunc(const std::vector<NDArray>& vec) {
     auto body = [vec](DGLArgs args, DGLRetValue* rv) {
-        const int which = args[0];
+        const uint64_t which = args[0];
         if (which >= vec.size()) {
             LOG(FATAL) << "invalid choice";
         } else {
@@ -34,5 +26,20 @@ PackedFunc ConvertNDArrayVectorToPackedFunc(const std::vector<NDArray>& vec) {
     return PackedFunc(body);
 }
 
-}  // namespace dgl
+PackedFunc ConvertEdgeArrayToPackedFunc(const EdgeArray& ea) {
+  auto body = [ea] (DGLArgs args, DGLRetValue* rv) {
+      const int which = args[0];
+      if (which == 0) {
+        *rv = std::move(ea.src);
+      } else if (which == 1) {
+        *rv = std::move(ea.dst);
+      } else if (which == 2) {
+        *rv = std::move(ea.id);
+      } else {
+        LOG(FATAL) << "invalid choice";
+      }
+    };
+  return PackedFunc(body);
+}
 
+}  // namespace dgl

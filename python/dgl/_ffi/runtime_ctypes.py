@@ -1,5 +1,5 @@
 """Common runtime ctypes."""
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, super-init-not-called
 from __future__ import absolute_import
 
 import ctypes
@@ -20,7 +20,7 @@ class TypeCode(object):
     DGL_TYPE = 5
     DGL_CONTEXT = 6
     ARRAY_HANDLE = 7
-    NODE_HANDLE = 8
+    OBJECT_HANDLE = 8
     MODULE_HANDLE = 9
     FUNC_HANDLE = 10
     STR = 11
@@ -73,7 +73,7 @@ class DGLType(ctypes.Structure):
             bits = 64
             head = ""
         else:
-            raise ValueError("Donot know how to handle type %s" % type_str)
+            raise ValueError("Do not know how to handle type %s" % type_str)
         bits = int(head) if head else bits
         inst.bits = bits
 

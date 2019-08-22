@@ -9,21 +9,42 @@
 #include <dgl/runtime/ndarray.h>
 #include <dgl/runtime/packed_func.h>
 #include <dgl/runtime/registry.h>
+#include <dgl/array.h>
+#include <dgl/graph_interface.h>
 #include <algorithm>
 #include <vector>
 
+/*! \brief Check whether two data types are the same.*/
+inline bool operator == (const DLDataType& ty1, const DLDataType& ty2) {
+  return ty1.code == ty2.code && ty1.bits == ty2.bits && ty1.lanes == ty2.lanes;
+}
+
+/*! \brief Output the string representation of device context.*/
+inline std::ostream& operator << (std::ostream& os, const DLDataType& ty) {
+  return os << "code=" << ty.code << ",bits=" << ty.bits << "lanes=" << ty.lanes;
+}
+
+/*! \brief Check whether two device contexts are the same.*/
+inline bool operator == (const DLContext& ctx1, const DLContext& ctx2) {
+  return ctx1.device_type == ctx2.device_type && ctx1.device_id == ctx2.device_id;
+}
+
+/*! \brief Output the string representation of device context.*/
+inline std::ostream& operator << (std::ostream& os, const DLContext& ctx) {
+  return os << ctx.device_type << ":" << ctx.device_id;
+}
+
 namespace dgl {
 
-// Graph handler type
-typedef void* GraphHandle;
+// Communicator handler type
+typedef void* CommunicatorHandle;
 
-/*!
- * \brief Convert the given DLTensor to DLManagedTensor.
- *
- * Return a temporary DLManagedTensor that does not own memory.
- */
-DLManagedTensor* CreateTmpDLManagedTensor(
-    const dgl::runtime::DGLArgValue& arg);
+/*! \brief Enum type for bool value with unknown */
+enum BoolFlag {
+  kBoolUnknown = -1,
+  kBoolFalse = 0,
+  kBoolTrue = 1
+};
 
 /*!
  * \brief Convert a vector of NDArray to PackedFunc.
@@ -33,8 +54,7 @@ dgl::runtime::PackedFunc ConvertNDArrayVectorToPackedFunc(
 
 /*!\brief Return whether the array is a valid 1D int array*/
 inline bool IsValidIdArray(const dgl::runtime::NDArray& arr) {
-  return arr->ctx.device_type == kDLCPU && arr->ndim == 1
-    && arr->dtype.code == kDLInt && arr->dtype.bits == 64;
+  return arr->ndim == 1 && arr->dtype.code == kDLInt;
 }
 
 /*!
@@ -51,6 +71,8 @@ dgl::runtime::NDArray CopyVectorToNDArray(
   std::copy(vec.begin(), vec.end(), static_cast<int64_t*>(a->data));
   return a;
 }
+
+runtime::PackedFunc ConvertEdgeArrayToPackedFunc(const EdgeArray& ea);
 
 }  // namespace dgl
 

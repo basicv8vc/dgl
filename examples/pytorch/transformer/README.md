@@ -3,31 +3,32 @@ In this example we implement the [Transformer](https://arxiv.org/pdf/1706.03762.
 
 The folder contains training module and inferencing module (beam decoder) for Transformer and training module for Universal Transformer
 
-## Requirements
+## Dependencies
 
 - PyTorch 0.4.1+
 - networkx
 - tqdm
+- requests
 
 ## Usage
 
 - For training:
 
     ```
-    python translation_train.py [--gpus id1,id2,...] [--N #layers] [--dataset DATASET] [--batch BATCHSIZE] [--universal]
+    python3 translation_train.py [--gpus id1,id2,...] [--N #layers] [--dataset DATASET] [--batch BATCHSIZE] [--universal]
     ```
 
 - For evaluating BLEU score on test set(by enabling `--print` to see translated text):
 
     ```
-    python translation_test.py [--gpu id] [--N #layers] [--dataset DATASET] [--batch BATCHSIZE] [--checkpoint CHECKPOINT] [--print] [--universal]
+    python3 translation_test.py [--gpu id] [--N #layers] [--dataset DATASET] [--batch BATCHSIZE] [--checkpoint CHECKPOINT] [--print] [--universal]
     ```
 
 Available datasets: `copy`, `sort`, `wmt14`, `multi30k`(default).
 
 ## Test Results
 
-### Transfomer
+### Transformer
 
 - Multi30k: we achieve BLEU score 35.41 with default setting on Multi30k dataset, without using pre-trained embeddings. (if we set the number of layers to 2, the BLEU score could reach 36.45).
 - WMT14: work in progress 
@@ -38,7 +39,7 @@ Available datasets: `copy`, `sort`, `wmt14`, `multi30k`(default).
 
 ## Notes
 
-- Currently we do not support Multi-GPU training(this will be fixed soon), you should only specifiy only one gpu\_id when running the training script.
+- Currently we do not support Multi-GPU training(this will be fixed soon), you should only specify only one gpu\_id when running the training script.
 
 ## Reference
 

@@ -9,7 +9,7 @@ The principles of this interface:
 * Argument type should be easier to understand.
 
 It is recommended the frameworks implement all the interfaces. However, it is
-also OK to skip some. The generated backend module has an ``is_enbaled`` function
+also OK to skip some. The generated backend module has an ``is_enabled`` function
 that returns whether the interface is supported by the framework or not.
 """
 
@@ -71,6 +71,34 @@ def tensor(data, dtype=None):
     -------
     Tensor
         A framework-specific tensor.
+    """
+    pass
+
+def as_scalar(data):
+    """Returns a scalar whose value is copied from this array.
+
+    Parameters
+    ----------
+    data : Tensor
+        The input data
+
+    Returns
+    -------
+    scalar
+        The scalar value in the tensor.
+    """
+    pass
+
+def get_preferred_sparse_format():
+    """Get the preferred sparse matrix format supported by the backend.
+
+    Different backends have their preferred backend. This info is useful when
+    constructing a sparse matrix.
+
+    Returns
+    -------
+    string
+        the name of the preferred sparse matrix format.
     """
     pass
 
@@ -198,6 +226,14 @@ def context(input):
     """
     pass
 
+def device_type(ctx):
+    """Return a str representing device type"""
+    pass
+
+def device_id(ctx):
+    """Return device index"""
+    pass
+
 def astype(input, ty):
     """Convert the input tensor to the given data type.
 
@@ -272,6 +308,21 @@ def sum(input, dim):
     """
     pass
 
+def reduce_sum(input):
+    """Returns the sum of all elements in the input tensor.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor with shape (1,)
+    """
+    pass
+
 def mean(input, dim):
     """Reduce average the input tensor along the given dim.
 
@@ -286,6 +337,21 @@ def mean(input, dim):
     -------
     Tensor
         A framework-specific tensor.
+    """
+    pass
+
+def reduce_mean(input):
+    """Returns the average of all elements in the input tensor.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor with shape (1,)
     """
     pass
 
@@ -305,6 +371,121 @@ def max(input, dim):
         A framework-specific tensor.
     """
     pass
+
+def reduce_max(input):
+    """Returns the max of all elements in the input tensor.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor with shape (1,)
+    """
+    pass
+
+def min(input, dim):
+    """Reduce min the input tensor along the given dim.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+    dim : int
+        The reduce dim.
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor.
+    """
+    pass
+
+def reduce_min(input):
+    """Returns the min of all elements in the input tensor.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor with shape (1,)
+    """
+    pass
+
+
+def argsort(input, dim, descending):
+    """Return the indices that would sort the input along the given dim.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+    dim : int
+        The dim to sort along.
+    descending : bool
+        Controls the sorting order (False: ascending, True: descending)
+
+    Returns
+    -------
+    Tensor
+        A framework-specific tensor.
+    """
+
+def topk(input, k, dim, descending=True):
+    """Return the k largest elements of the given input tensor along the given dimension.
+
+    If descending is False then the k smallest elements are returned.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+    dim : int
+        The dim to sort along.
+    descending : bool
+        Controls whether to return largest/smallest elements.
+    """
+    pass
+
+def exp(input):
+    """Returns a new tensor with the exponential of the elements of the input tensor `input`.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+
+    Returns
+    -------
+    Tensor
+        The output tensor.
+    """
+    pass
+
+def softmax(input, dim=-1):
+    """Apply the softmax function on given dimension.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor.
+    dim : int
+        The dimension along which to compute softmax.
+
+    Returns
+    -------
+    Tensor
+        The output tensor.
+    """
+    pass
+
 
 def cat(seq, dim):
     """Concat the sequence of tensors in the given dimension.
@@ -360,6 +541,25 @@ def split(input, sizes_or_sections, dim):
     """
     pass
 
+def repeat(input, repeats, dim):
+    """Repeats elements of an array.
+
+    Parameters
+    ----------
+    input : Tensor
+        Input data array
+    repeats : int
+        The number of repetitions for each element
+    dim : int
+        The dim along which to repeat values.
+
+    Returns
+    -------
+    Tensor
+        The obtained tensor.
+    """
+    pass
+
 def gather_row(data, row_index):
     """Slice out the data given the row index.
 
@@ -377,9 +577,44 @@ def gather_row(data, row_index):
     """
     pass
 
+def slice_axis(data, axis, begin, end):
+    """Slice along a given axis.
+    Returns an array slice along a given axis starting from :attr:`begin` index to :attr:`end` index.
+
+    Parameters
+    ----------
+    data : Tensor
+        The data tensor.
+    axis : int
+        The axis along to slice the tensor.
+    begin : int
+        Indicates the begin index.
+    end : int
+        Indicates the end index.
+    Returns:
+    --------
+    Tensor
+        The sliced tensor.
+    """
+    pass
+
+def take(data, indices, dim):
+    """Takes elements from an input array along the given dim.
+
+    Parameters
+    ----------
+    data : Tensor
+        The data tensor.
+    indices : Tensor
+        The indices tensor.
+    dim : Tensor
+        The dimension to gather along.
+    """
+    pass
+
 def narrow_row(x, start, stop):
     """Narrow down the tensor along the first dimension.
-    
+
     Parameters
     ----------
     x : Tensor
@@ -422,7 +657,7 @@ def scatter_row(data, row_index, value):
     pass
 
 def scatter_row_inplace(data, row_index, value):
-    """Write the value into the data tensor using the row index inplacely.
+    """Write the value into the data tensor using the row index inplace.
 
     This is an inplace write so it will break the autograd.
 
@@ -507,6 +742,22 @@ def zeros(shape, dtype, ctx):
     """
     pass
 
+def zeros_like(input):
+    """Create a zero tensor with the same shape, dtype and context of the
+    given tensor.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input
+
+    Returns
+    -------
+    Tensor
+        The result
+    """
+    pass
+
 def ones(shape, dtype, ctx):
     """Create a one tensor.
 
@@ -526,20 +777,47 @@ def ones(shape, dtype, ctx):
     """
     pass
 
-def spmm(x, y):
-    """Multiply a sparse matrix with a dense matrix.
+def pad_packed_tensor(input, lengths, value, l_min=None):
+    """Pads a packed batch of variable length tensors with given value.
 
     Parameters
     ----------
-    x : SparseTensor
-        The sparse matrix.
-    y : Tensor
-        The dense matrix.
+    input : Tensor
+        The input tensor with shape :math:`(N, *)`
+    lengths : list or tensor
+        The array of tensor lengths (of the first dimension) :math:`L`.
+        It should satisfy :math:`\sum_{i=1}^{B}L_i = N`,
+        where :math:`B` is the length of :math:`L`.
+    value : float
+        The value to fill in the tensor.
+    l_min : int or None, defaults to None.
+        The minimum length each tensor need to be padded to, if set to None,
+        then there is no minimum length requirement.
 
     Returns
     -------
     Tensor
-        The result dense matrix.
+        The obtained tensor with shape :math:`(B, \max(\max_i(L_i), l_{min}), *)`
+    """
+    pass
+
+def pack_padded_tensor(input, lengths):
+    """Packs a tensor containing padded sequence of variable length.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor with shape :math:`(B, L, *)`, where :math:`B` is
+        the batch size and :math:`L` is the maximum length of the batch.
+    lengths : list or tensor
+        The array of tensor lengths (of the first dimension) :math:`L`.
+        :math:`\max_i(L_i)` should equal :math:`L`.
+
+    Returns
+    -------
+    Tensor
+        The obtained tensor with shape :math:`(N, *)` where
+        :math:`N = \sum_{i=1}^{B}L_i`
     """
     pass
 
@@ -595,6 +873,54 @@ def unsorted_1d_segment_mean(input, seg_id, n_segs, dim):
     """
     pass
 
+def boolean_mask(input, mask):
+    """Selects elements in x according to the given mask from the first
+    dimension.
+
+    Parameters
+    ----------
+    input : Tensor
+        The input tensor
+    mask : Boolean Tensor
+        The mask
+
+    Returns
+    -------
+    Tensor
+        The result
+    """
+    pass
+
+def equal(x, y):
+    """Compares whether the elements are equal.
+
+    Parameters
+    ----------
+    x, y : Tensor
+        The two tensors
+
+    Returns
+    -------
+    Boolean tensor
+        The result, with the same shape as input.
+    """
+    pass
+
+def logical_not(input):
+    """Perform a logical not operation.  Equivalent to np.logical_not
+
+    Parameters
+    ----------
+    input : Tensor
+        The input
+
+    Returns
+    -------
+    Tensor
+        The result
+    """
+    pass
+
 ###############################################################################
 # Tensor functions used *only* on index tensor
 # ----------------
@@ -618,7 +944,7 @@ def unique(input):
     """
     pass
 
-def full_1d(length, fill_value):
+def full_1d(length, fill_value, dtype, ctx):
     """Create a 1D tensor full of the fill_value.
 
     Parameters
@@ -627,6 +953,10 @@ def full_1d(length, fill_value):
         The length of the vector.
     fill_value : int
         The filled value.
+    dtype : data type
+        It should be one of the values in the data type dict.
+    ctx : context
+        The device of the result tensor.
 
     Returns
     -------
@@ -761,12 +1091,116 @@ def zerocopy_from_numpy(np_array):
     """
     pass
 
+def zerocopy_to_dgl_ndarray(input):
+    """Zerocopy a framework-specific Tensor to dgl.ndarray.NDArray
+
+    Parameters
+    ----------
+    input : Tensor
+
+    Returns
+    -------
+    dgl.ndarray.NDArray
+    """
+    pass
+
+def zerocopy_from_dgl_ndarray(input):
+    """Zerocopy a dgl.ndarray.NDArray to framework-specific Tensor
+
+    Parameters
+    ----------
+    input : dgl.ndarray.NDArray
+
+    Returns
+    -------
+    Tensor
+    """
+    pass
+
+###############################################################################
+# Custom Operators for graph level computations.
+
+# Note: These operators are supposed to be implemented using DGL-provided
+# kernels (see kernel.py), and plug into tensor framework using custom op
+# extensions.
+
+def binary_reduce(reducer, binary_op, graph, lhs, rhs, lhs_data, rhs_data,
+                  out_size, lhs_map, rhs_map, out_map):
+    """Perform binary operation between given data and reduce based on graph
+    structure.
+
+    Parameters
+    ----------
+    reducer : str
+        Type of reduction: 'sum', 'max', 'min', 'mean', 'prod', 'none' (no
+        reduction)
+    binary_op : str
+        Binary operation to perform, can be 'add', 'mul', 'sub', 'div'
+    graph : GraphIndex
+        The graph
+    lhs : int
+        The lhs target (src, dst, edge)
+    rhs : int
+        The rhs target (src, dst, edge)
+    lhs_data : Tensor
+        The lhs data
+    rhs_data : Tensor
+        The rhs data
+    out_size : int
+        Size of first dimension of output data
+    lhs_map : tuple
+        Two lhs id mapping arrays, one for forward pass, the other for backward
+    rhs_map : tuple
+        Two rhs id mapping arrays, one for forward pass, the other for backward
+    out_map : tuple
+        Two out id mapping arrays, one for forward pass, the other for backward
+
+    Returns
+    -------
+    Tensor
+        The result.
+    """
+    pass
+
+def copy_reduce(reducer, graph, target, in_data, out_size, in_map, out_map):
+    """Copy target data and perform reduce based on graph structure.
+
+    Parameters
+    ----------
+    reducer : str
+        Type of reduction: be 'sum', 'max', 'min', 'mean', 'prod', 'none' (no
+        reduction)
+    graph : GraphIndex
+        The graph
+    target : int
+        The input target (src, dst, edge)
+    in_data : Tensor
+        The input data
+    out_size : int
+        Size of first dimension of output data
+    in_map : tuple
+        Two input id mapping arrays, one for forward, the other for backward
+    out_map : tuple
+        Two output id mapping arrays, one for forward, the other for backward
+
+    Returns
+    -------
+    Tensor
+        The result.
+    """
+    pass
+
 ###############################################################################
 # Other interfaces
 # ----------------
 # These are not related to tensors. Some of them are temporary workarounds that
 # should be included in DGL in the future.
 
-def create_immutable_graph_index():
-    """Create an immutable graph index object."""
+def sync():
+    """Synchronize computation.
+
+    In DL frameworks such as MXNet and TensorFlow, the computation in operators
+    are done asynchronously. This is to synchronize computation and makes sure
+    that all computation is complete after this function call.
+    """
     pass

@@ -1,12 +1,10 @@
 """Class for subgraph data structure."""
 from __future__ import absolute_import
 
-import networkx as nx
-
-from . import backend as F
 from .frame import Frame, FrameRef
 from .graph import DGLGraph
 from . import utils
+from .base import DGLError
 from .graph_index import map_to_subgraph_nid
 
 class DGLSubGraph(DGLGraph):
@@ -35,34 +33,32 @@ class DGLSubGraph(DGLGraph):
     ----------
     parent : DGLGraph
         The parent graph
-    parent_nid : utils.Index
-        The induced parent node ids in this subgraph.
-    parent_eid : utils.Index
-        The induced parent edge ids in this subgraph.
-    graph_idx : GraphIndex
-        The graph index.
+    sgi : SubgraphIndex
+        Internal subgraph data structure.
     shared : bool, optional
         Whether the subgraph shares node/edge features with the parent graph.
     """
-    def __init__(self, parent, parent_nid, parent_eid, graph_idx, shared=False):
-        super(DGLSubGraph, self).__init__(graph_data=graph_idx,
-                                          readonly=graph_idx.is_readonly())
+    def __init__(self, parent, sgi, shared=False):
+        super(DGLSubGraph, self).__init__(graph_data=sgi.graph,
+                                          readonly=True)
+        if shared:
+            raise DGLError('Shared mode is not yet supported.')
         self._parent = parent
-        self._parent_nid = parent_nid
-        self._parent_eid = parent_eid
+        self._parent_nid = sgi.induced_nodes
+        self._parent_eid = sgi.induced_edges
 
     # override APIs
-    def add_nodes(self, num, reprs=None):
-        """Add nodes. Disabled because BatchedDGLGraph is read-only."""
-        raise RuntimeError('Readonly graph. Mutation is not allowed.')
+    def add_nodes(self, num, data=None):
+        """Add nodes. Disabled because subgraph is read-only."""
+        raise DGLError('Readonly graph. Mutation is not allowed.')
 
-    def add_edge(self, u, v, reprs=None):
-        """Add one edge. Disabled because BatchedDGLGraph is read-only."""
-        raise RuntimeError('Readonly graph. Mutation is not allowed.')
+    def add_edge(self, u, v, data=None):
+        """Add one edge. Disabled because subgraph is read-only."""
+        raise DGLError('Readonly graph. Mutation is not allowed.')
 
-    def add_edges(self, u, v, reprs=None):
-        """Add many edges. Disabled because BatchedDGLGraph is read-only."""
-        raise RuntimeError('Readonly graph. Mutation is not allowed.')
+    def add_edges(self, u, v, data=None):
+        """Add many edges. Disabled because subgraph is read-only."""
+        raise DGLError('Readonly graph. Mutation is not allowed.')
 
     @property
     def parent_nid(self):
@@ -110,10 +106,10 @@ class DGLSubGraph(DGLGraph):
             If true, use inplace write (no gradient but faster)
         """
         self._parent._node_frame.update_rows(
-                self._parent_nid, self._node_frame, inplace=inplace)
+            self._parent_nid, self._node_frame, inplace=inplace)
         if self._parent._edge_frame.num_rows != 0:
             self._parent._edge_frame.update_rows(
-                    self._get_parent_eid(), self._edge_frame, inplace=inplace)
+                self._get_parent_eid(), self._edge_frame, inplace=inplace)
 
     def copy_from_parent(self):
         """Copy node/edge features from the parent graph.

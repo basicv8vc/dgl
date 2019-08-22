@@ -45,6 +45,15 @@ Querying graph structure
     DGLGraph.out_degree
     DGLGraph.out_degrees
 
+Removing nodes and edges
+------------------------
+
+.. autosummary::
+    :toctree: ../../generated/
+    
+    DGLGraph.remove_nodes
+    DGLGraph.remove_edges
+
 Transforming graph
 ------------------
 
@@ -55,6 +64,8 @@ Transforming graph
     DGLGraph.subgraphs
     DGLGraph.edge_subgraph
     DGLGraph.line_graph
+    DGLGraph.reverse
+    DGLGraph.readonly
 
 Converting from/to other format
 -------------------------------
@@ -66,7 +77,9 @@ Converting from/to other format
     DGLGraph.from_networkx
     DGLGraph.from_scipy_sparse_matrix
     DGLGraph.adjacency_matrix
+    DGLGraph.adjacency_matrix_scipy
     DGLGraph.incidence_matrix
+    DGLGraph.to
 
 Using Node/edge features
 ------------------------
@@ -82,6 +95,8 @@ Using Node/edge features
     DGLGraph.edge_attr_schemes
     DGLGraph.set_n_initializer
     DGLGraph.set_e_initializer
+    DGLGraph.local_var
+    DGLGraph.local_scope
 
 Computing with DGLGraph
 -----------------------
@@ -95,6 +110,7 @@ Computing with DGLGraph
     DGLGraph.register_apply_edge_func
     DGLGraph.apply_nodes
     DGLGraph.apply_edges
+    DGLGraph.group_apply_edges
     DGLGraph.send
     DGLGraph.recv
     DGLGraph.send_and_recv
